@@ -1,0 +1,17 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sobert-sl", "sobert-sl\sobert-sl.csproj", "{F3C9A392-9C4A-4B41-AA2D-32996B6EDA3E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3C9A392-9C4A-4B41-AA2D-32996B6EDA3E}.Debug|x86.ActiveCfg = Debug|x86
+		{F3C9A392-9C4A-4B41-AA2D-32996B6EDA3E}.Debug|x86.Build.0 = Debug|x86
+		{F3C9A392-9C4A-4B41-AA2D-32996B6EDA3E}.Release|x86.ActiveCfg = Release|x86
+		{F3C9A392-9C4A-4B41-AA2D-32996B6EDA3E}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+EndGlobal
