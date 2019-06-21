@@ -309,7 +309,7 @@ namespace NNBot
 						Console.ResetColor();
 						dbw.logIMEvent(e);
 						log = false;
-						var nni = NNInterfaceNew.getInterface(e.IM.FromAgentName);
+						var nni = NNInterfaceHTTP.getInterface(e.IM.FromAgentName);
 						nni.pushLine(e.IM.Message);
 						nni.getLine((s) =>
 						{

@@ -24,7 +24,7 @@ namespace NNBot
 		private string quiet_by;
 		private string lastSource = "";
 
-		public ConversationHandler(string key, Bot.Reply handler)
+        public ConversationHandler(string key, Bot.Reply handler)
 		{
 			logfile = new StreamWriter("talkinfo." + Bot.configuration["firstname"] + "." + Bot.configuration["lastname"] + ".log");
 			talk = handler;
@@ -50,7 +50,7 @@ namespace NNBot
 		{
 			if (Convert.ToInt32(Bot.configuration["debugchat"]) > 0)
 				Console.WriteLine("Incoming chat from " + source + ":" + message);
-			NNInterfaceNew.getInterface(nnkey).pushLine(message);
+			NNInterfaceHTTP.getInterface(nnkey).pushLine(message);
 			string kwc = Bot.configuration["keywords"];
 			if (kw_last != kwc)
 			{
@@ -141,11 +141,11 @@ namespace NNBot
 			if (Bot.rand.NextDouble() < talkProb)
 			{
 				lock(lck) thinking = true;
-				NNInterfaceNew.getInterface(nnkey).getLine((s) =>
+				NNInterfaceHTTP.getInterface(nnkey).getLine((s) =>
 				{
-					lock (lck)
-					{
-						selftalk += s.Length;
+				    lock (lck)
+				    {
+                        selftalk += s.Length;
 						thinking = false;
 						boost *= Convert.ToDouble(Bot.configuration["boostdecay"]);
 					}
