@@ -30,7 +30,7 @@ namespace NNBot
 
 			Client = new GridClient();
 			Client.Settings.LOG_DISKCACHE = false;
-			Settings.LOG_LEVEL = Helpers.LogLevel.Info;
+			Settings.LOG_LEVEL = Helpers.LogLevel.Error;
 			if (configuration["loginserver"] != "") Client.Settings.LOGIN_SERVER = configuration["loginserver"];
 			Client.Self.IM += new EventHandler<InstantMessageEventArgs>(IMHandler);
 			Client.Self.ChatFromSimulator += new EventHandler<ChatEventArgs>(ChatHandler);
