@@ -113,7 +113,8 @@ namespace NNBot
 				if (quiet > 900 && timeHeard > 900) quiet -= 14;
 				double targetratio = Convert.ToDouble(Bot.configuration["targetratio"]);
 				double talkadd = Convert.ToDouble(Bot.configuration["talkadd"]);
-				double totalboost = boost;
+				double totalboost = 0;
+				if (timeHeard < timeTalked || timeTalked > 5) totalboost += boost;
 				if (timeHeard < timeTalked) totalboost += Convert.ToDouble(Bot.configuration["respboost"]);
 				if (timeHeard < timeTalked && timeSourceChange > Convert.ToDouble (Bot.configuration ["singletime"]))
 					totalboost += Convert.ToDouble (Bot.configuration ["singleboost"]);
