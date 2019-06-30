@@ -36,8 +36,9 @@ namespace NNBot
 			Client.Self.ChatFromSimulator += new EventHandler<ChatEventArgs>(ChatHandler);
 			Client.Avatars.UUIDNameReply += new EventHandler<UUIDNameReplyEventArgs>(UUIDNameHandler);
 			Client.Self.ScriptQuestion += new EventHandler<ScriptQuestionEventArgs>(PermissionRequestHandler);
-			Client.Groups.GroupJoinedReply += Groups_GroupJoinedReply;
-			Client.Groups.GroupInvitation += Groups_GroupInvitation;
+                Client.Groups.GroupJoinedReply += Groups_GroupJoinedReply;
+                Client.Groups.GroupInvitation += Groups_GroupInvitation;
+                Client.Self.ScriptDialog += DialogHanler;
 			Reply talklocal = (string s) =>
 			{
 				if (Client.Network.CurrentSim.Access == SimAccess.PG && Convert.ToInt32(configuration["nogtalk"]) > 0)
@@ -68,9 +69,21 @@ namespace NNBot
 				doLoginSit();
 			}
 			else Console.WriteLine("Failed");
-		}
+        }
 
-		private static void doLoginTeleport()
+        private static void DialogHanler(object sender, ScriptDialogEventArgs e)
+        {
+            System.Console.WriteLine("Dialog from " + e.ObjectName + " on channel " + e.Channel + " with options:" +
+                e.ButtonLabels.ToString());
+            if (configuration.ContainsKey("dialogs") && Convert.ToInt32(configuration["dialogs"]) > 0)
+            {
+                string reply = e.ButtonLabels[rand.Next(e.ButtonLabels.Count)];
+                System.Console.WriteLine("selected reply: " + reply);
+                Client.Self.Chat(reply, e.Channel, ChatType.Normal);
+            }
+        }
+
+        private static void doLoginTeleport()
 		{
 			while (true) {
 				string region = Client.Network.CurrentSim.Name;
