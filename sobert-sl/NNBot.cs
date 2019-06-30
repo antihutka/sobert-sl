@@ -74,7 +74,7 @@ namespace NNBot
         private static void DialogHanler(object sender, ScriptDialogEventArgs e)
         {
             System.Console.WriteLine("Dialog from " + e.ObjectName + " on channel " + e.Channel + " with options:" +
-                e.ButtonLabels.ToString());
+                String.Join(", ", e.ButtonLabels));
             if (configuration.ContainsKey("dialogs") && Convert.ToInt32(configuration["dialogs"]) > 0)
             {
                 string reply = e.ButtonLabels[rand.Next(e.ButtonLabels.Count)];
