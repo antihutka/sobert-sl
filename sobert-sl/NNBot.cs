@@ -78,9 +78,9 @@ namespace NNBot
             if (configuration.ContainsKey("dialogs") && Convert.ToInt32(configuration["dialogs"]) > 0)
             {
                 Thread.Sleep(3000);
-                string reply = e.ButtonLabels[rand.Next(e.ButtonLabels.Count)];
-                System.Console.WriteLine("selected reply: " + reply);
-                Client.Self.Chat(reply, e.Channel, ChatType.Normal);
+                int reply = rand.Next(e.ButtonLabels.Count);
+                System.Console.WriteLine("selected reply: " + e.ButtonLabels[reply]);
+                Client.Self.ReplyToScriptDialog(e.Channel, reply, e.ButtonLabels[reply], e.ObjectID);
             }
         }
 
