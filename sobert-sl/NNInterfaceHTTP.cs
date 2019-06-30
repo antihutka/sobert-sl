@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -37,7 +38,7 @@ namespace NNBot
         }
 		private void runThread()
 		{
-			Task.Run(async () =>
+			Thread th = new Thread(async () =>
 			{
 				Console.WriteLine("Thread for (" + name + ") running");
 				while (true)
@@ -59,6 +60,8 @@ namespace NNBot
 					}
 				}
 			});
+			th.IsBackground = true;
+			th.Start();
 		}
 		private void deleteSelf()
         {
