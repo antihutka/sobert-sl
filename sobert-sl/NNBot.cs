@@ -252,7 +252,12 @@ namespace NNBot
 					Task.Run(() => processCommand(l, 200, (s) => Console.WriteLine(s), UUID.Zero));
 					Thread.Sleep(50);
 				}
-				catch (Exception e)
+                catch (System.Threading.ThreadAbortException)
+                {
+                    System.Console.WriteLine("Console thread aborting");
+                    return;
+                }
+                catch (Exception e)
 				{
 					System.Console.WriteLine(e);
 				}
