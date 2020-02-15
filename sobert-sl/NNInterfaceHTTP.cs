@@ -14,6 +14,10 @@ namespace NNBot
 		private static HttpClient client = new HttpClient();
 		private static readonly object lck = new object();
         private static Dictionary<string, NNInterfaceHTTP> dict = new Dictionary<string, NNInterfaceHTTP>();
+        static NNInterfaceHTTP()
+        {
+            client.Timeout = TimeSpan.FromMinutes(10);
+        }
         public static NNInterfaceHTTP getInterface(string key)
         {
             lock (lck)
@@ -22,7 +26,6 @@ namespace NNBot
                 bool got = dict.TryGetValue(key, out nni);
                 if (got && nni != null) return nni;
                 nni = new NNInterfaceHTTP(key);
-				client.Timeout = TimeSpan.FromMinutes(10);
                 dict[key] = nni;
 				nni.runThread();
                 return nni;
@@ -38,7 +41,7 @@ namespace NNBot
         }
 		private void runThread()
 		{
-			Thread th = new Thread(async () =>
+			Thread th = new Thread(() =>
 			{
 				Console.WriteLine("Thread for (" + name + ") running");
 				while (true)
@@ -54,7 +57,7 @@ namespace NNBot
 						Console.WriteLine("Queue size: " + queue.Count);
 					try
 					{
-						await op();
+                        Task.Run(async () => await op()).Wait();
 					} catch (Exception e){
 						Console.WriteLine("Exception in interface thread:" + e.ToString());
 					}
