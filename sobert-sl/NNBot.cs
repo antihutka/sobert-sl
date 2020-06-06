@@ -24,7 +24,6 @@ namespace NNBot
 			if (args.Length > 0)
 				configfile = args[0];
 			configuration = Config.LoadConfig(configfile);
-			//Console.WriteLine(string.Join(";", configuration));
 
 			dbw = new DatabaseWriter(configuration["dbstring"]);
 
@@ -67,8 +66,18 @@ namespace NNBot
 				Task.Run(() => consoleCommands());
 				doLoginTeleport ();
 				doLoginSit();
+				Console.WriteLine("Everything done!");
+                WaitForDisconnect();
+				Console.WriteLine("Disconnected, exiting");
 			}
 			else Console.WriteLine("Failed");
+        }
+
+        private static void WaitForDisconnect()
+        {
+            Semaphore s = new Semaphore(0, 1);
+            Client.Network.Disconnected += (sender, e) => s.Release(1);
+            s.WaitOne();
         }
 
         private static void DialogHanler(object sender, ScriptDialogEventArgs e)
