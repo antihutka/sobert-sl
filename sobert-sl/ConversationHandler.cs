@@ -15,12 +15,16 @@ namespace NNBot
 		readonly string nnkey;
 		private readonly Bot.Reply talk;
 		private double othertalk = 1, selftalk = 100, boost = 0;
+		private double credits = 0;
+		private double slowcredits = 0;
+		private int mentions = 0;
 		private bool thinking = false;
 		private int quiet = 0;
 		string kw_last;
 		string[] kw_split;
 		StreamWriter logfile;
 		private int titler_last_update = 0;
+		private int talked_since_heard = 0;
 		private string quiet_by;
 		private string lastSource = "";
 
@@ -46,6 +50,19 @@ namespace NNBot
 			});
 		}
 
+
+		private static double dblopt(string s)
+		{
+			return Convert.ToDouble(Bot.configuration[s]);
+		}
+
+		private void transfer_credits(double a)
+		{
+			if (a>slowcredits) a=slowcredits;
+			slowcredits -= a;
+			credits += a;
+		}
+
 		public void incomingMessage(string message, bool fromObj, string source)
 		{
 			if (Convert.ToInt32(Bot.configuration["debugchat"]) > 0)
@@ -66,7 +83,15 @@ namespace NNBot
 				}
 				lastHeard = DateTime.Now;
 				othertalk += message.Length;
-				if (has_kw && !fromObj) boost += Convert.ToDouble(Bot.configuration["boostamount"]);
+				talked_since_heard = 0;
+				if (has_kw && !fromObj) {
+					slowcredits += dblopt("credits_per_mention");
+					mentions += 1;
+				}
+				if (quiet <= 0) {
+					credits += dblopt("credits_per_character") * message.Length;
+					transfer_credits(dblopt("transfer_per_character") * message.Length);
+				}
 			}
 		}
 
@@ -102,35 +127,32 @@ namespace NNBot
 			double timeHeard = (now - lastHeard).TotalMinutes;
 			double timeTalked = (now - lastTalked).TotalMinutes;
 			double timeSourceChange = (now - lastSourceChange).TotalMinutes;
-			double talkProb = 0.01;
+			double talkProbNew = 0.001;
 			string message;
+			double td = Convert.ToDouble(Bot.configuration["talkdecay"]);
+			double targetratio = Convert.ToDouble(Bot.configuration["targetratio"]);
+			double talkadd = Convert.ToDouble(Bot.configuration["talkadd"]);
+			double bonus = 0;
 			lock (lck)
 			{
-				double td = Convert.ToDouble(Bot.configuration["talkdecay"]);
-				selftalk *= td;
-				othertalk *= td;
+				if (quiet <= 0) {
+					credits += dblopt("credits_per_tick");
+					if (talked_since_heard == 0) bonus += timeSourceChange * dblopt("bonus_per_singleminute");
+				}
+				bonus += dblopt("bonus_per_mention") * mentions;
+				bonus -= dblopt("penalty_per_monocharacter") * talked_since_heard;
+				credits *= dblopt("credits_decay");
+				talkProbNew *= Math.Exp((credits + bonus) / dblopt("credits_div"));
 				if (quiet > 0) quiet--;
-				if (quiet > 900 && timeHeard > 900) quiet -= 14;
-				double targetratio = Convert.ToDouble(Bot.configuration["targetratio"]);
-				double talkadd = Convert.ToDouble(Bot.configuration["talkadd"]);
+				// old logic starts here
 				double totalboost = 0;
 				if (timeHeard < timeTalked || timeTalked > 5) totalboost += boost;
-				if (timeHeard < timeTalked) totalboost += Convert.ToDouble(Bot.configuration["respboost"]);
-				if (timeHeard < timeTalked && timeSourceChange > Convert.ToDouble (Bot.configuration ["singletime"]))
-					totalboost += Convert.ToDouble (Bot.configuration ["singleboost"]);
-				double talkratio = (talkadd*targetratio + selftalk + quiet) / (talkadd + othertalk + totalboost);
-				talkratio /= targetratio;
-				talkProb /= Math.Pow(talkratio, 8) + 0.00001;
-				double talkthr = Convert.ToDouble(Bot.configuration["talkthr"]);
-				double talkthrdiv = Convert.ToDouble(Bot.configuration["talkthrdiv"]);
-				double talkthrottle = selftalk /* / targetratio */ + othertalk - talkthr;
-				if (talkthrottle > 0) talkProb /= Math.Exp((talkthrottle)/(talkthrdiv));
-				if (talkProb > 1) talkProb = 1;
-				if (thinking) talkProb = 0;
+				if (thinking) talkProbNew = 0;
 				message = "tHear=" + timeHeard.ToString("n2") + " tTalk=" + timeTalked.ToString("n2") + 
-					" ts=" + timeSourceChange.ToString("n2") + " boost=" + totalboost.ToString("n0") +
-				        " quiet=" + quiet.ToString() + " oTalk=" + othertalk.ToString("n2") + " sTalk=" + selftalk.ToString("n2") +
-				        " ratio=" + talkratio.ToString("n2") + " prob=" + (talkProb*100).ToString("n2") + "%";
+					" ts=" + timeSourceChange.ToString("n2") + " sc=" + slowcredits.ToString("n1") + " cr=" + credits.ToString("n1") + " bonus=" + bonus.ToString("n1") +
+						" tsh=" + talked_since_heard.ToString() + 
+				        " quiet=" + quiet.ToString() +
+				        " prob=" + (talkProbNew*100).ToString("n2") + "%";
 				if (Convert.ToInt32(Bot.configuration["talkinfo"]) > 0)
 					                                     Console.WriteLine(message);
 				Console.Title = message;
@@ -139,7 +161,7 @@ namespace NNBot
 			}
 			logfile.WriteLine(message); logfile.Flush();
 
-			if (Bot.rand.NextDouble() < talkProb)
+			if (!thinking && Bot.rand.NextDouble() < talkProbNew)
 			{
 				lock(lck) thinking = true;
 				NNInterfaceHTTP.getInterface(nnkey).getLine((s) =>
@@ -149,6 +171,9 @@ namespace NNBot
                         selftalk += s.Length;
 						thinking = false;
 						boost *= Convert.ToDouble(Bot.configuration["boostdecay"]);
+						credits -= s.Length;
+						talked_since_heard += s.Length;
+						mentions = 0;
 					}
 					if (s != "")
 						talk(s);
