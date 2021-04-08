@@ -14,7 +14,6 @@ namespace NNBot
 		private DateTime lastHeard, lastTalked, lastSourceChange;
 		readonly string nnkey;
 		private readonly Bot.Reply talk;
-		private double othertalk = 1, selftalk = 100, boost = 0;
 		private double credits = 0;
 		private double slowcredits = 0;
 		private int mentions = 0;
@@ -82,7 +81,6 @@ namespace NNBot
 					lastSourceChange = lastHeard;
 				}
 				lastHeard = DateTime.Now;
-				othertalk += message.Length;
 				talked_since_heard = 0;
 				if (has_kw && !fromObj) {
 					slowcredits += dblopt("credits_per_mention");
@@ -111,7 +109,6 @@ namespace NNBot
 		public void setquiet(int q, string user)
 		{
 			if (q > 9000) q = 9000;
-			if (q < 500 && quiet > 500) q = 500;
 			if (q < 0) q = 0;
 			lock(lck)
 			{
@@ -129,9 +126,6 @@ namespace NNBot
 			double timeSourceChange = (now - lastSourceChange).TotalMinutes;
 			double talkProbNew = 0.001;
 			string message;
-			double td = Convert.ToDouble(Bot.configuration["talkdecay"]);
-			double targetratio = Convert.ToDouble(Bot.configuration["targetratio"]);
-			double talkadd = Convert.ToDouble(Bot.configuration["talkadd"]);
 			double bonus = 0;
 			lock (lck)
 			{
@@ -139,17 +133,16 @@ namespace NNBot
 					credits += dblopt("credits_per_tick");
 					if (talked_since_heard == 0) bonus += timeSourceChange * dblopt("bonus_per_singleminute");
 				}
+				transfer_credits(dblopt("transfer_per_tick"));
 				bonus += dblopt("bonus_per_mention") * mentions;
 				bonus -= dblopt("penalty_per_monocharacter") * talked_since_heard;
 				credits *= dblopt("credits_decay");
 				talkProbNew *= Math.Exp((credits + bonus) / dblopt("credits_div"));
 				if (quiet > 0) quiet--;
 				// old logic starts here
-				double totalboost = 0;
-				if (timeHeard < timeTalked || timeTalked > 5) totalboost += boost;
 				if (thinking) talkProbNew = 0;
-				message = "tHear=" + timeHeard.ToString("n2") + " tTalk=" + timeTalked.ToString("n2") + 
-					" ts=" + timeSourceChange.ToString("n2") + " sc=" + slowcredits.ToString("n1") + " cr=" + credits.ToString("n1") + " bonus=" + bonus.ToString("n1") +
+				message = "tH=" + timeHeard.ToString("n2") + " tT=" + timeTalked.ToString("n2") + 
+					" ts=" + timeSourceChange.ToString("n2") + " sc=" + slowcredits.ToString("n0") + " cr=" + credits.ToString("n0") + " bonus=" + bonus.ToString("n0") +
 						" tsh=" + talked_since_heard.ToString() + 
 				        " quiet=" + quiet.ToString() +
 				        " prob=" + (talkProbNew*100).ToString("n2") + "%";
@@ -168,9 +161,7 @@ namespace NNBot
 				{
 				    lock (lck)
 				    {
-                        selftalk += s.Length;
 						thinking = false;
-						boost *= Convert.ToDouble(Bot.configuration["boostdecay"]);
 						credits -= s.Length;
 						talked_since_heard += s.Length;
 						mentions = 0;
