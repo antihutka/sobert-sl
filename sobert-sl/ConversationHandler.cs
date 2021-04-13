@@ -43,8 +43,14 @@ namespace NNBot
 			{
 				while (true)
 				{
-					Thread.Sleep((int)(Convert.ToDouble(Bot.configuration["talkinterval"]) * 1000));
-					tick();
+					try {
+						Thread.Sleep((int)(dblopt("talkinterval") * 1000));
+						tick();
+					} catch (Exception e)
+					{
+						System.Console.WriteLine("Exception in talk tick:", e);
+						Thread.Sleep(15*1000);
+					}
 				}
 			});
 		}
@@ -124,7 +130,7 @@ namespace NNBot
 			double timeHeard = (now - lastHeard).TotalMinutes;
 			double timeTalked = (now - lastTalked).TotalMinutes;
 			double timeSourceChange = (now - lastSourceChange).TotalMinutes;
-			double talkProbNew = 0.001;
+			double talkProbNew = 0.01/100;
 			string message;
 			double bonus = 0;
 			lock (lck)
@@ -144,8 +150,8 @@ namespace NNBot
 				message = "tH=" + timeHeard.ToString("n2") + " tT=" + timeTalked.ToString("n2") + 
 					" ts=" + timeSourceChange.ToString("n2") + " sc=" + slowcredits.ToString("n0") + " cr=" + credits.ToString("n0") + " bonus=" + bonus.ToString("n0") +
 						" tsh=" + talked_since_heard.ToString() + 
-				        " quiet=" + quiet.ToString() +
-				        " prob=" + (talkProbNew*100).ToString("n2") + "%";
+				        " q=" + quiet.ToString() +
+				        " p=" + (talkProbNew*100).ToString("n2") + "%";
 				if (Convert.ToInt32(Bot.configuration["talkinfo"]) > 0)
 					                                     Console.WriteLine(message);
 				Console.Title = message;
