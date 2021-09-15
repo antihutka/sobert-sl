@@ -130,7 +130,7 @@ namespace NNBot
 			double timeHeard = (now - lastHeard).TotalMinutes;
 			double timeTalked = (now - lastTalked).TotalMinutes;
 			double timeSourceChange = (now - lastSourceChange).TotalMinutes;
-			double talkProbNew = 0.01/100;
+			double talkProbNew = 0.1/100;
 			string message;
 			double bonus = 0;
 			lock (lck)
