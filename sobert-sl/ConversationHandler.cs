@@ -148,7 +148,7 @@ namespace NNBot
 				// old logic starts here
 				if (thinking) talkProbNew = 0;
 				message = "tH=" + timeHeard.ToString("n2") + " tT=" + timeTalked.ToString("n2") + 
-					" ts=" + timeSourceChange.ToString("n2") + " sc=" + slowcredits.ToString("n0") + " cr=" + credits.ToString("n0") + " bonus=" + bonus.ToString("n0") +
+					" ts=" + timeSourceChange.ToString("n2") + " sc=" + slowcredits.ToString("n0") + " cr=" + credits.ToString("n0") + " b=" + bonus.ToString("n0") +
 						" tsh=" + talked_since_heard.ToString() + 
 				        " q=" + quiet.ToString() +
 				        " p=" + (talkProbNew*100).ToString("n2") + "%";
