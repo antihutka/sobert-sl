@@ -68,6 +68,13 @@ namespace NNBot
 			credits += a;
 		}
 
+		private static double addSquarely(double current, double val_to_add)
+		{
+			if (current <= 0)
+				return current + val_to_add;
+			return Math.Pow(Math.Pow(current, 2) + Math.Pow(val_to_add, 2), 0.5);
+		}
+
 		public void incomingMessage(string message, bool fromObj, string source)
 		{
 			if (Convert.ToInt32(Bot.configuration["debugchat"]) > 0)
@@ -89,7 +96,7 @@ namespace NNBot
 				lastHeard = DateTime.Now;
 				talked_since_heard = 0;
 				if (has_kw && !fromObj) {
-					slowcredits += dblopt("credits_per_mention");
+					slowcredits = addSquarely(slowcredits, dblopt("credits_per_mention"));
 					mentions += 1;
 				}
 				if (quiet <= 0) {
