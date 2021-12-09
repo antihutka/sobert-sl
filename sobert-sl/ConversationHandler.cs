@@ -120,6 +120,9 @@ namespace NNBot
 			{
 				quiet = q;
 				quiet_by = user;
+				slowcredits = 0;
+				if (credits > 0)
+					credits = 0;
 				updateTitle();
 			}
 		}
@@ -142,6 +145,7 @@ namespace NNBot
 				transfer_credits(dblopt("transfer_per_tick"));
 				bonus += dblopt("bonus_per_mention") * mentions;
 				bonus -= dblopt("penalty_per_monocharacter") * talked_since_heard;
+				bonus -= quiet;
 				credits *= dblopt("credits_decay");
 				talkProbNew *= Math.Exp((credits + bonus) / dblopt("credits_div"));
 				if (quiet > 0) quiet--;
