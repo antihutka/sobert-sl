@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using OpenMetaverse;
 
 namespace NNBot
@@ -24,7 +24,7 @@ namespace NNBot
 
 		private void reconnect(bool retry)
 		{
-			conn = new MySql.Data.MySqlClient.MySqlConnection ();
+			conn = new MySqlConnector.MySqlConnection ();
 			conn.ConnectionString = connstring;
 			while (true) {
 				try {
@@ -36,7 +36,7 @@ namespace NNBot
 						cmd.ExecuteNonQuery();
 					}
 					return;
-				} catch (MySql.Data.MySqlClient.MySqlException ex) {
+				} catch (MySqlConnector.MySqlException ex) {
 					System.Console.WriteLine ("Mysql connect error: " + ex.Message);
 					if (!retry)
 						throw new Exception ("Database connection error", ex);
@@ -54,7 +54,7 @@ namespace NNBot
 						try {
 							q();
 							break;
-						} catch (MySql.Data.MySqlClient.MySqlException ex) {
+						} catch (MySqlConnector.MySqlException ex) {
 							System.Console.WriteLine("Query error: " + ex.Message);
 							conn.Close();
 							Thread.Sleep (3000);
