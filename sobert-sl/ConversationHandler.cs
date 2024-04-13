@@ -63,6 +63,7 @@ namespace NNBot
 
 		private void transfer_credits(double a)
 		{
+			if (slowcredits < credits) return;
 			if (a>slowcredits) a=slowcredits;
 			slowcredits -= a;
 			credits += a;
