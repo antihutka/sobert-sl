@@ -95,7 +95,7 @@ namespace NNBot
 
         private static void doLoginTeleport()
 		{
-			while (true) {
+			while (Client.Network.Connected) {
 				string region = Client.Network.CurrentSim.Name;
 				System.Console.WriteLine("Current sim: " + region);
 				string k = "tpfrom:" + region;
