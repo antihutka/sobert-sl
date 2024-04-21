@@ -36,7 +36,7 @@ namespace NNBot
 						cmd.ExecuteNonQuery();
 					}
 					return;
-				} catch (MySqlConnector.MySqlException ex) {
+				} catch (Exception ex) {
 					System.Console.WriteLine ("Mysql connect error: " + ex.Message);
 					if (!retry)
 						throw new Exception ("Database connection error", ex);
@@ -54,7 +54,7 @@ namespace NNBot
 						try {
 							q();
 							break;
-						} catch (MySqlConnector.MySqlException ex) {
+						} catch (Exception ex) {
 							System.Console.WriteLine("Query error: " + ex.Message);
 							conn.Close();
 							Thread.Sleep (3000);
@@ -129,7 +129,7 @@ namespace NNBot
 			cmd.Parameters.AddWithValue ("?fromuuid", fromuuid.ToString());
 			cmd.Parameters.AddWithValue ("?fromdisplayname", fromdisplayname);
 			cmd.Parameters.AddWithValue ("?botname", botname);
-			cmd.Parameters.AddWithValue("?sessionid", sessionid);
+			cmd.Parameters.AddWithValue ("?sessionid", sessionid.ToString());
 			cmd.Parameters.AddWithValue ("?message", message);
 			cmd.ExecuteNonQuery ();
 		}
