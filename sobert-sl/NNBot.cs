@@ -192,6 +192,14 @@ namespace NNBot
 								}
 								msg = msg.Substring(msg.IndexOf("]: ") + 3);
 							}
+							if (e.FromName == "." && msg.StartsWith("secondlife:///")) {
+								src = msg.Substring(24, 36);
+								if (msg.Contains("/inspect: "))
+									msg = msg.Substring(msg.IndexOf("/inspect: ")+10);
+								else if (msg.Contains("/inspect "))
+									msg = "/me " + msg.Substring(msg.IndexOf("/inspect ")+9);
+								Console.WriteLine("stripped <" + src + "> <" + msg + ">");
+							}
 							localchat.incomingMessage(msg, false, src);
 						}
 					}
